@@ -3,31 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Auth\Events\Verified;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class VerificationController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Email Verification Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling email verification for any
-    | user that recently registered with the application. Emails may also
-    | be re-sent if the user didn't receive the original email message.
-    |
-    */
-
-    use VerifiesEmails;
-
-    /**
-     * Where to redirect users after verification.
-     *
-     * @var string
-     */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
     /**
      * Create a new controller instance.
      *
@@ -35,8 +16,34 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
+    }
+
+    public function verify(Request $request, User $user)
+    {
+        // Check if the url is a valid signed url
+        if(! \URL::hasValidSignature($request)){
+            return response()->json(["errors" => [
+                "message" => "Link de verificación inválido"
+            ]], 422);
+        }
+
+        // Check if the user has already verified account
+        if($user->hasVerifiedEmail()){
+            return response()->json(["errors" => [
+                "message" => "Email ya ha sido verificado"
+            ]], 422);
+        }
+
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+
+        return response()->json(['message' => 'Email ha sido verificado con éxito'], 200);
+    }
+
+    public function resend(Request $request)
+    {
+
     }
 }
