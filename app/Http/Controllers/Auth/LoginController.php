@@ -64,4 +64,12 @@ class LoginController extends Controller
             $this->username() => "Credencial de autenticación invalido"
         ]);
     }
+
+    public function logout()
+    {
+        $nameUser = $this->guard()->user()->name;
+        $this->guard()->logout();
+
+        return response()->json(['message' => "Vuelva pronto {$nameUser}"]);
+    }
 }
