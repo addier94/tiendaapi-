@@ -4,7 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\User\MeController;
 
+// Public routes
+Route::get('me', [MeController::class, 'getMe']);
+
+// Route group for authenticated users only
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('logout', [LoginController::class, 'logout']);
 });
