@@ -15,6 +15,12 @@ class CreateDetailsTable extends Migration
     {
         Schema::create('details', function (Blueprint $table) {
             $table->id();
+            $table->string('box_price');
+            $table->string('qty_item_in_box');
+            $table->string('price_of_single_item');
+            $table->unsignedBigInteger('user_id')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }
