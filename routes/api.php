@@ -18,7 +18,7 @@ Route::group(['middleware' => ['auth:api']], function() {
 
 // Route for guests only
 Route::group(['middleware' => ['guest:api']], function () {
-    Route::post('register', [RegisterController::class, 'register']);
+    Route::post('register', [RegisterController::class, 'register'])->name('register');
     Route::post('verification/verify/{user}', [VerificationController::class, 'verify'])->name('verification.verify');
     Route::post('verification/resend', [VerificationController::class, 'resend']);
     Route::post('login', [LoginController::class, 'login']);
