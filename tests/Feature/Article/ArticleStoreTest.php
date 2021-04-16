@@ -20,14 +20,15 @@ class ArticleStoreTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->jsonAs($user, 'POST', 'api/article', [
-           'name' => 'cookies'
+        $this->jsonAs($user, 'POST', 'api/article', $payload = [
+           'name' => 'cracker'
+        ])->assertJsonFragment([
+           'name' => 'cracker'
         ]);
 
-        $this->assertDatabaseHas('articles', [
-            'user_id' => $user->id,
-            'name' => 'cookies'
-        ]);
+        $this->assertDatabaseHas('articles', array_merge($payload, [
+            'user_id' => $user->id
+        ]));
     }
 
     public function test_it_requires_a_name()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Article;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Article\CreateArticleRequest;
 use Illuminate\Http\Request;
+use App\Models\Article;
 
 class ArticleController extends Controller
 {
@@ -26,7 +27,12 @@ class ArticleController extends Controller
      */
     public function store(CreateArticleRequest $request)
     {
-        return $request->user()->articles()->create($request->all());
+        $article = Article::make($request->only([
+            'name'
+        ]));
+
+        return $request->user()->articles()->save($article);
+//        return $request->user()->articles()->create($request->all());
     }
 
     /**
@@ -37,7 +43,7 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-        //
+        // young sheldon
     }
 
     /**

@@ -19,12 +19,14 @@ class ArticleIndexTest extends TestCase
     public function test_it_get_all_articles_own_user()
     {
         $user = User::factory()->create();
+        $articles = Article::factory()->times(5)->create(['user_id' => $user->id ]);
 
-        Article::factory()->times(10)->create([
-            'user_id'=>$user->id
-        ]);
+        $response = $this->jsonAs($user, 'GET', 'api/article');
 
-        $this->jsonAs($user, 'GET', 'api/article')
-            ->assertJsonCount(10);
+        $articles->each(function ($article) use ($response) {
+            $response->assertJsonFragment([
+               'name' => $article->name
+            ]);
+        });
     }
 }
