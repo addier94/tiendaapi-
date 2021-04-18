@@ -4,68 +4,41 @@ namespace App\Http\Controllers\Article;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Article\CreateArticleRequest;
+use App\Http\Requests\Article\UpdateArticleRequest;
+use App\Http\Resources\Article\ArticleResource;
 use Illuminate\Http\Request;
 use App\Models\Article;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        return auth()->user()->articles()->get();
+        $articles = auth()->user()->articles()->get();
+        return ArticleResource::collection($articles);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(CreateArticleRequest $request)
     {
-        $article = Article::make($request->only([
-            'name'
-        ]));
+        $article = Article::where('id', $request->id)
+            ->where(function ($query) {
+                $query->where('user_id', auth()->user()->id);
+            })->first();
 
-        return $request->user()->articles()->save($article);
-//        return $request->user()->articles()->create($request->all());
+        if($article === null) {
+            $article = auth()->user()->articles()->make(['name' => $request->name]);
+        }
+
+        $article->save();
+        return new ArticleResource($article);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function update(UpdateArticleRequest $request, $id)
     {
-        // young sheldon
-    }
+        $article = Article::findOrfail($id);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $article->name = $request->name;
+        $article->save();
+//        return new ArticleResource($article);
+        return ArticleResource::make($article);
     }
 }

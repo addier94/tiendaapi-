@@ -17,7 +17,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::get('me', [MeController::class, 'getMe']);
     Route::post('logout', [LoginController::class, 'logout']);
     Route::resource('article', ArticleController::class)->except([
-        'create', 'edit'
+        'create', 'edit', 'show', 'destroy'
     ]);
     Route::resource('detail', DetailController::class)->except([
         'create', 'edit'

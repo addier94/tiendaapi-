@@ -16,19 +16,32 @@ class ArticleStoreTest extends TestCase
             ->assertStatus(401);
     }
 
+    public function test_it_can_find_an_article()
+    {
+        $user = User::factory()->create();
+        $article = Article::factory()->create([
+            'user_id' => $user->id,
+            'name' => 'Cracker'
+        ]);
+
+        $this->jsonAs($user, 'POST', 'api/article', [
+            'id' => $article->id,
+            'name' => $article->name,
+            'user_id' => $article->id
+        ])->assertJsonFragment(['name' => $article->name]);
+
+        $this->assertDatabaseHas('articles', ['name' => $article->name]);
+    }
+
     public function test_it_can_create_an_article()
     {
         $user = User::factory()->create();
 
         $this->jsonAs($user, 'POST', 'api/article', $payload = [
-           'name' => 'cracker'
-        ])->assertJsonFragment([
-           'name' => 'cracker'
-        ]);
+           'name' => 'Cracker Created',
+        ])->assertJsonFragment($payload);
 
-        $this->assertDatabaseHas('articles', array_merge($payload, [
-            'user_id' => $user->id
-        ]));
+        $this->assertDatabaseHas('articles', $payload);
     }
 
     public function test_it_requires_a_name()

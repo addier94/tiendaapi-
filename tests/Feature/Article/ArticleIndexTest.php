@@ -21,8 +21,8 @@ class ArticleIndexTest extends TestCase
         $user = User::factory()->create();
         $articles = Article::factory()->times(5)->create(['user_id' => $user->id ]);
 
-        $response = $this->jsonAs($user, 'GET', 'api/article');
-
+        $response = $this->jsonAs($user, 'GET', 'api/article')
+            ->dump();
         $articles->each(function ($article) use ($response) {
             $response->assertJsonFragment([
                'name' => $article->name
